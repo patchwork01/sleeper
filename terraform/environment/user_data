@@ -23,5 +23,20 @@ set -u # Treat unset variable as error
 set -x # Trace commands
 set -o pipefail
 
-# Add authorized keys
-echo "${var1}" >> /tmp/test
+# Get Updates
+export DEBIAN_FRONTEND=noninteractive
+sudo apt update && sudo apt -y dist-upgrade
+
+# Install AWS tools
+sudo apt install -y docker.io unzip htop
+curl -sS "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+unzip -qq "/tmp/awscliv2.zip" -d "/tmp" && sh /tmp/aws/install --update && rm -rf "/tmp/awscliv2.zip" "/tmp/aws"
+
+# Install JDK & Maven
+sudo apt install -y maven
+
+# Install CDK
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm install -g npm
+sudo npm install -g aws-cdk
