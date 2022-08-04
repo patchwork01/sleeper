@@ -30,4 +30,8 @@ resource "aws_instance" "ec2_public" {
     "Name" = "${var.namespace}-EC2-PUBLIC"
   }
 
+  root_block_device {
+    volume_size = 200
+    volume_type = "gp3"
+  }
 }
