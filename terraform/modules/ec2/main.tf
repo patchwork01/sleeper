@@ -17,7 +17,11 @@ resource "aws_instance" "ec2_public" {
   key_name                    = var.key_name
   subnet_id                   = var.vpc.public_subnets[0]
   vpc_security_group_ids      = [var.sg_pub_id]
-  user_data                   = filebase64("${path.module}/user_data")
+  user_data                   = base64encode(templatefile("${path.module}/user_data", {
+    repository = var.repository
+    branch     = var.branch
+    fork       = var.fork
+  }))
   user_data_replace_on_change = true
 
   metadata_options {

@@ -9,3 +9,21 @@ variable "region" {
   default     = "eu-west-2"
   type        = string
 }
+
+variable "repository" {
+  description = "Name of GitHub repository to check out"
+  default     = "sleeper"
+  type        = string
+}
+
+variable "branch" {
+  description = "Branch in GitHub repository to check out"
+  default     = "main"
+  type        = string
+}
+
+variable "fork" {
+  description = "GitHub fork to check out"
+  default     = "gchq"
+  type        = string
+}

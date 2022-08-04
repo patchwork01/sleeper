@@ -23,6 +23,9 @@ set -u # Treat unset variable as error
 set -x # Trace commands
 set -o pipefail
 
+LOGIN_USER=ubuntu
+LOGIN_HOME=/home/$LOGIN_USER
+
 # Get Updates
 export DEBIAN_FRONTEND=noninteractive
 sudo apt update && sudo apt -y dist-upgrade
@@ -33,7 +36,7 @@ curl -sS "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/aws
 unzip -qq "/tmp/awscliv2.zip" -d "/tmp" && sh /tmp/aws/install --update && rm -rf "/tmp/awscliv2.zip" "/tmp/aws"
 
 # Allow user to access docker socket
-usermod -aG docker ubuntu
+usermod -aG docker $LOGIN_USER
 
 # Install JDK & Maven
 sudo apt install -y maven
@@ -44,4 +47,11 @@ sudo apt install -y nodejs
 sudo npm install -g npm
 sudo npm install -g aws-cdk
 
-[ -f /var/run/reboot-required ] && /sbin/shutdown -r now && exit
+# Check out code
+if [ ! -d $LOGIN_HOME/${repository} ]; then
+  runuser -u $LOGIN_USER -- git clone -b ${branch} https://github.com/${fork}/${repository}.git $LOGIN_HOME/${repository}
+fi
+
+if [ -f /var/run/reboot-required ]; then
+  /sbin/shutdown -r now && exit
+fi

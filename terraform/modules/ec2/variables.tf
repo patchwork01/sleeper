@@ -13,3 +13,15 @@ variable "key_name" {
 variable "sg_pub_id" {
   type = any
 }
+
+variable "repository" {
+  type = string
+}
+
+variable "branch" {
+  type = string
+}
+
+variable "fork" {
+  type = string
+}
