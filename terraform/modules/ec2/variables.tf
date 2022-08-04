@@ -13,7 +13,3 @@ variable "key_name" {
 variable "sg_pub_id" {
   type = any
 }
-
-variable "user_data" {
-  type = string
-}

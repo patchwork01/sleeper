@@ -13,11 +13,11 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "ec2_public" {
   ami                         = data.aws_ami.ubuntu.id
   associate_public_ip_address = true
-  instance_type               = "t3.micro"
+  instance_type               = "t3.large"
   key_name                    = var.key_name
   subnet_id                   = var.vpc.public_subnets[0]
   vpc_security_group_ids      = [var.sg_pub_id]
-  user_data                   = var.user_data
+  user_data                   = filebase64("${path.module}/user_data")
   user_data_replace_on_change = true
 
   metadata_options {

@@ -19,5 +19,4 @@ module "ec2" {
   vpc       = module.networking.vpc
   sg_pub_id = module.networking.sg_pub_id
   key_name  = module.ssh-key.key_name
-  user_data = filebase64("${path.module}/user_data")
 }
