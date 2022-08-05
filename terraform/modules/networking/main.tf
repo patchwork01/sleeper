@@ -37,3 +37,25 @@ resource "aws_security_group" "allow_ssh_pub" {
     Name = "${var.namespace}-allow_ssh_pub"
   }
 }
+
+data "aws_vpc_endpoint_service" "s3" {
+  service      = "s3"
+  service_type = "Gateway"
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id          = module.vpc.vpc_id
+  service_name    = data.aws_vpc_endpoint_service.s3.service_name
+  route_table_ids = [module.vpc.default_route_table_id]
+}
+
+data "aws_vpc_endpoint_service" "dynamodb" {
+  service      = "dynamodb"
+  service_type = "Gateway"
+}
+
+resource "aws_vpc_endpoint" "dynamodb" {
+  vpc_id          = module.vpc.vpc_id
+  service_name    = data.aws_vpc_endpoint_service.dynamodb.service_name
+  route_table_ids = [module.vpc.default_route_table_id]
+}
