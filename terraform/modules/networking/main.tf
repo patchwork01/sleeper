@@ -1,15 +1,13 @@
 data "aws_availability_zones" "available" {}
 
 module "vpc" {
-  source                       = "terraform-aws-modules/vpc/aws"
-  name                         = "${var.namespace}-vpc"
-  cidr                         = "10.150.0.0/16"
-  azs                          = data.aws_availability_zones.available.names
-  private_subnets              = []
-  public_subnets               = ["10.150.1.0/24"]
-  create_database_subnet_group = false
-  enable_nat_gateway           = false
-  single_nat_gateway           = false
+  source             = "terraform-aws-modules/vpc/aws"
+  name               = "${var.namespace}-vpc"
+  cidr               = "10.150.0.0/16"
+  azs                = data.aws_availability_zones.available.names
+  private_subnets    = ["10.150.101.0/24"]
+  public_subnets     = ["10.150.1.0/24"]
+  enable_nat_gateway = true
 }
 
 // SG to allow SSH connections
@@ -38,24 +36,27 @@ resource "aws_security_group" "allow_ssh_pub" {
   }
 }
 
-data "aws_vpc_endpoint_service" "s3" {
-  service      = "s3"
-  service_type = "Gateway"
-}
+module "endpoints" {
+  source = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
 
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id          = module.vpc.vpc_id
-  service_name    = data.aws_vpc_endpoint_service.s3.service_name
-  route_table_ids = [module.vpc.default_route_table_id]
-}
+  vpc_id             = module.vpc.vpc_id
+  security_group_ids = [module.vpc.default_security_group_id]
+  subnet_ids         = module.vpc.private_subnets
 
-data "aws_vpc_endpoint_service" "dynamodb" {
-  service      = "dynamodb"
-  service_type = "Gateway"
-}
+  endpoints = {
+    s3 = {
+      service         = "s3"
+      service_type    = "Gateway"
+      route_table_ids = [module.vpc.default_route_table_id]
+    },
+    dynamodb = {
+      service         = "dynamodb"
+      service_type    = "Gateway"
+      route_table_ids = [module.vpc.default_route_table_id]
+    },
+  }
 
-resource "aws_vpc_endpoint" "dynamodb" {
-  vpc_id          = module.vpc.vpc_id
-  service_name    = data.aws_vpc_endpoint_service.dynamodb.service_name
-  route_table_ids = [module.vpc.default_route_table_id]
+  tags = {
+    Environment = var.namespace
+  }
 }
