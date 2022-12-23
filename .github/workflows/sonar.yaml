@@ -1,8 +1,8 @@
-name: Full Maven Compile
+name: Sonar
 on:
   push:
     paths:
-      - '.github/workflows/maven-full.yaml'
+      - '.github/workflows/sonar.yaml'
       - 'java/**'
 
 jobs:
@@ -15,6 +15,12 @@ jobs:
         with:
           java-version: '8'
           distribution: 'adopt'
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
@@ -26,5 +32,13 @@ jobs:
         run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -Dmaven.repo.local=.m2/repository
         working-directory: ./java
       - name: Build with Maven
-        run: mvn --batch-mode verify -Pquick -Dmaven.repo.local=.m2/repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn --batch-mode verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dmaven.repo.local=.m2/repository \
+            -Dsonar.projectKey=sleeper:aws
+            -Dsonar.organization=${{ github.repository_owner }}
+            -Dsonar.host.url=https://sonarcloud.io
         working-directory: ./java
