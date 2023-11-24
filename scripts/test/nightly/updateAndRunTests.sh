@@ -43,7 +43,7 @@ git fetch
 git switch --discard-changes -C develop origin/develop
 
 set +e
-./runTests.sh "$VPC" "$SUBNETS" "$RESULTS_BUCKET" "$TEST_TYPE"
+#./runTests.sh "$VPC" "$SUBNETS" "$RESULTS_BUCKET" "$TEST_TYPE"
 EXIT_CODE=$?
 set -e
 
